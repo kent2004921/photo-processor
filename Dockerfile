@@ -1,20 +1,23 @@
-FROM python:3.9-slim
+# 使用官方 Python 3.10 镜像作为基础镜像
+    FROM python:3.10-slim
 
-# 安装系统依赖（OpenCV 需要）
-RUN apt-get update && apt-get install -y libsm6 libxext6 libxrender-dev
+    # 设置工作目录
+    WORKDIR /app
 
-# 复制 requirements.txt 和 lambda_function.py
-COPY requirements.txt .
-COPY lambda_function.py .
+    # 复制项目文件到容器
+    COPY . .
 
-# 安装 Python 依赖
-RUN pip install -r requirements.txt
+    # 安装系统依赖（OpenCV 需要）
+    RUN apt-get update && apt-get install -y \
+        libgl1-mesa-glx \
+        libglib2.0-0 \
+        && rm -rf /var/lib/apt/lists/*
 
-# 安装 Flask
-RUN pip install flask
+    # 安装 Python 依赖
+    RUN pip install --no-cache-dir -r requirements.txt
 
-# 设置工作目录
-WORKDIR /
+    # 暴露端口（Render 默认使用 8080）
+    EXPOSE 8080
 
-# 启动 Flask 应用
-CMD ["python", "lambda_function.py"]
+    # 使用 gunicorn 启动 Flask 应用
+    CMD ["gunicorn", "--bind", "0.0.0.0:8080", "lambda_function:app"]
