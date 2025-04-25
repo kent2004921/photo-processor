@@ -58,10 +58,12 @@ def process_image():
 
 @app.route('/health', methods=['GET'])
 def health_check():
+    print("Health check endpoint called")  # 添加日志
     return jsonify({'status': 'healthy'}), 200
 
 @app.route('/', methods=['GET'])
 def root():
+    print("Root endpoint called")  # 添加日志
     return jsonify({'message': 'Photo Processor Service'}), 200
 
 if __name__ == '__main__':
